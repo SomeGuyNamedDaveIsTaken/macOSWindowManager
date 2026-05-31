@@ -86,7 +86,5 @@ int main(void) {
 
     CFRunLoopRun();
 
-    CFRelease(g_tap);
-    g_tap = NULL;
     return 0;
 }
