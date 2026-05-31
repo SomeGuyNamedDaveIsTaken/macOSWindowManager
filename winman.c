@@ -21,8 +21,12 @@ static void await_accessiblity_permissions(void) {
     bool trusted = AXIsProcessTrustedWithOptions(options);
     CFRelease(options);
 
+    bool loggedError = false;
     while (!trusted) {
-        fprintf(stderr, "Process not trusted. Awaiting permission grant.\n");
+        if (!loggedError) {
+            fprintf(stderr, "Process not trusted. Awaiting permission to be granted in settings.\n");
+            loggedError = true;
+        }
         sleep(2);
         trusted = AXIsProcessTrusted();
     }
@@ -70,11 +74,19 @@ int main(void) {
     }
 
     CFRunLoopSourceRef source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, g_tap, 0);
+    if (source == NULL) {
+        fprintf(stderr, "Unable to create run loop source.\n");
+        CFRelease(g_tap);
+        g_tap = NULL;
+        return 1;
+    }
     CFRunLoopAddSource(CFRunLoopGetCurrent(), source, kCFRunLoopCommonModes);
     CFRelease(source);
     CGEventTapEnable(g_tap, true);
 
     CFRunLoopRun();
 
+    CFRelease(g_tap);
+    g_tap = NULL;
     return 0;
 }
