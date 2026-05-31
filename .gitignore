@@ -1,0 +1,6 @@
+# Build
+winman
+*.o
+
+# Filesystem
+.DS_Store

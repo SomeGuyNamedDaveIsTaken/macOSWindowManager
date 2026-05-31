@@ -1,0 +1,36 @@
+{
+    "editor.formatOnSave": true,
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "editor.rulers": [120],
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+    "prettier.tabWidth": 4,
+    "prettier.printWidth": 120,
+    "prettier.useTabs": false,
+
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "files.eol": "\n",
+
+    "[c]": {
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+        "editor.formatOnSave": true
+    },
+
+    "clangd.arguments": [
+        "--background-index",
+        "--clang-tidy",
+        "--header-insertion=never",
+        "--completion-style=detailed",
+        "--pch-storage=memory"
+    ],
+
+    "clangd.checkUpdates": false,
+
+    "[markdown]": {
+        "editor.bracketPairColorization.enabled": false
+    }
+}

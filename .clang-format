@@ -1,0 +1,62 @@
+---
+# Project C style — matches .claude/skills/c-coding-standards/SKILL.md
+
+BasedOnStyle: LLVM
+Language: Cpp
+
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ContinuationIndentWidth: 4
+IndentCaseLabels: false
+
+ColumnLimit: 120
+
+# K&R braces: opening brace on the same line as function/conditional.
+BreakBeforeBraces: Attach
+
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+
+# Pointers bind to the name: `char *p`, not `char* p`.
+PointerAlignment: Right
+DerivePointerAlignment: false
+
+# Spacing
+SpaceBeforeParens: ControlStatements
+SpaceAfterCStyleCast: false
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+SpacesBeforeTrailingComments: 1
+
+# Long parameter lists: align continuation under the first parameter.
+AlignAfterOpenBracket: BlockIndent
+BinPackArguments: false
+BinPackParameters: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowAllArgumentsOnNextLine: false
+
+# Discourage the "static int\nfoo(...)" split for long function signatures;
+# prefer wrapping parameters across multiple lines instead.
+PenaltyReturnTypeOnItsOwnLine: 1000
+
+# Prefer wrapping a call's arguments (BlockIndent) over breaking after '='.
+PenaltyBreakAssignment: 1000
+
+# Includes: don't reorder.
+SortIncludes: Never
+IncludeBlocks: Preserve
+
+# Whitespace
+MaxEmptyLinesToKeep: 1
+KeepEmptyLinesAtTheStartOfBlocks: false
+
+# Misc.
+AlignConsecutiveAssignments: None
+AlignConsecutiveDeclarations: None
+AlignTrailingComments: true
+ReflowComments: true
+...
