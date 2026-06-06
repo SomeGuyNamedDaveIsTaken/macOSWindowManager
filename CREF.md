@@ -14,7 +14,7 @@ Functions in the **ISO C standard library** (C99/C11 baseline). This set ships w
 - **`gets` is gone.** Removed in C11. Never use. Use `fgets`.
 - **`sprintf` / `strcpy` / `strcat` have no bounds.** Buffer overflow risk. Prefer `snprintf`, and check lengths before `strcpy`/`strcat`. `strncpy` does **not** null-terminate if source length ≥ `n`.
 - **`scanf("%s", ...)` has no bounds.** Use a width: `scanf("%99s", buf)` for a 100-byte buffer. `scanf` also leaves the trailing newline in the buffer; mixing with `fgets` bites people.
-- **C11 `<threads.h>`, `<stdatomic.h>`, `<complex.h>` are NOT reliably portable.** MSVC added C11 threads/atomics only recently (VS2022, behind `/std:c11`+`/experimental` historically) and its `complex` is nonstandard. Apple clang shipped no `<threads.h>` for years. For real cross-platform threading/atomics, use C++ `std` or a library (pthreads + Win32, or SDL/glib). Treat these three headers as "maybe."
+- **C11 `<threads.h>`, `<stdatomic.h>`, `<complex.h>` are NOT reliably portable.** MSVC added C11 atomics in VS2022 17.5 (still behind `/experimental:c11atomics`) and `<threads.h>` in 17.8; its `complex` is nonstandard (uses `_Dcomplex`, no native `_Complex`). Apple clang shipped no `<threads.h>` for years (atomics there are fine). For real cross-platform threading, use C++ `std` or a library (pthreads + Win32, or SDL/glib). Treat these headers as "maybe."
 - **`%zu` for `size_t`, `PRId64`/`PRIu64` for fixed-width.** Modern MSVC supports `%zu`; very old (pre-VS2015) did not. `<inttypes.h>` macros are the portable way to print `int64_t` etc.
 
 ---
@@ -382,8 +382,8 @@ Requires `#pragma STDC FENV_ACCESS ON` to be strictly correct. Support varies; f
 
 Standardized but **inconsistently implemented**. Verify on your target before relying on them.
 
-| Header          | Provides                                                          | Reality                                                                                    |
-| --------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `<threads.h>`   | `thrd_create`, `mtx_lock`, `cnd_wait`, `tss_*`, `call_once`       | Missing on Apple clang for years; late/partial in MSVC. Use pthreads+Win32 or C++ instead. |
-| `<stdatomic.h>` | `_Atomic`, `atomic_load/store`, `atomic_fetch_add`, `atomic_flag` | Late MSVC support; works on recent gcc/clang.                                              |
-| `<complex.h>`   | `_Complex`, `complex`, `cabs`, `creal`, `cimag`, `cexp`           | MSVC implementation is nonstandard (`_Dcomplex`, no native `_Complex`).                    |
+| Header          | Provides                                                          | Reality                                                                                                  |
+| --------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `<threads.h>`   | `thrd_create`, `mtx_lock`, `cnd_wait`, `tss_*`, `call_once`       | Missing on Apple clang for years; late/partial in MSVC. Use pthreads+Win32 or C++ instead.               |
+| `<stdatomic.h>` | `_Atomic`, `atomic_load/store`, `atomic_fetch_add`, `atomic_flag` | Works on recent gcc/clang incl. Apple clang. MSVC: VS2022 17.5+, still needs `/experimental:c11atomics`. |
+| `<complex.h>`   | `_Complex`, `complex`, `cabs`, `creal`, `cimag`, `cexp`           | MSVC implementation is nonstandard (`_Dcomplex`, no native `_Complex`).                                  |
