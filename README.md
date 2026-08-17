@@ -41,7 +41,7 @@ Maps keyboard shortcut/chord -> open/focus application.
 ./init.sh
 ```
 
-2. Use make to compile the window manager.
+2. Use make to compile the application.
 
 ```bash
 make
@@ -108,6 +108,6 @@ defaults delete com.$USER.winman
 
 ## References
 
-- []()
-- []()
-- []()
+- [CFRunLoopRun()](<https://developer.apple.com/documentation/corefoundation/cfrunlooprun()>)
+- [CGEventTapCreate](<https://developer.apple.com/documentation/coregraphics/cgevent/tapcreate(tap:place:options:eventsofinterest:callback:userinfo:)?language=objc>)
+- [AXIsProcessTrustedWithOptions()](https://developer.apple.com/documentation/applicationservices/1459186-axisprocesstrustedwithoptions)

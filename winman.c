@@ -1,10 +1,22 @@
-#include <ApplicationServices/ApplicationServices.h>
-
 #include <stdio.h>
 #include <stdbool.h>
 #include <unistd.h>
 
+#include <ApplicationServices/ApplicationServices.h>
+
+#define MAX_BUNDLE 128
+#define MAX_BINDINGS 64
+#define POLLING_TIMEOUT_SECONDS 2
+
+typedef struct {
+    CGEventFlags mods;
+    CGKeyCode key;
+    char bundle[MAX_BUNDLE];
+} Binding;
+
 static CFMachPortRef g_tap = NULL;
+static Binding g_bindings[MAX_BINDINGS];
+static size_t g_bindings_size = 0;
 
 static void await_accessiblity_permissions(void) {
     const void *keys[] = {kAXTrustedCheckOptionPrompt};
@@ -27,12 +39,69 @@ static void await_accessiblity_permissions(void) {
             fprintf(stderr, "Process not trusted. Awaiting permission to be granted in settings.\n");
             loggedError = true;
         }
-        sleep(2);
+        sleep(POLLING_TIMEOUT_SECONDS);
         trusted = AXIsProcessTrusted();
     }
 }
 
-static CGEventRef tapEventCallback(CGEventTapProxy tapProxy, CGEventType eventType, CGEventRef event, void *refcon) {
+int load_config(const char *path) {
+    FILE *file = fopen(path, "r");
+    if (!file) {
+        fprintf(stderr, "File not found at %s\n", path);
+        return -1;
+    }
+
+    char line[256];
+    int line_number = 0;
+    g_bindings_size = 0;
+
+    while (fgets(line, sizeof(line), file)) {
+        line_number++;
+
+        if (!strchr(line, '\n') && !feof(file)) {
+            fprintf(stderr, "config line %d: too long, skipping\n", line_number);
+            int c;
+            while ((c = fgetc(file)) != EOF && c != '\n')
+                ;
+            continue;
+        }
+
+        char *line_pointer = line;
+        while (*line_pointer == ' ' || *line_pointer == '\t') {
+            line_pointer++; // skip leading space
+        }
+        if (*line_pointer == '\0' || *line_pointer == '\n' || *line_pointer == '#') {
+            continue; // blank / comment
+        }
+
+        char chord[64], bundle[MAX_BUNDLE];
+        if (sscanf(line_pointer, "%63s %127s", chord, bundle) != 2) { // widths cap overflow
+            fprintf(stderr, "config line %d: malformed, skipping\n", line_number);
+            continue;
+        }
+        if (g_bindings_size >= MAX_BINDINGS) {
+            fprintf(stderr, "config: more than %d bindings, ignoring rest\n", MAX_BINDINGS);
+            break;
+        }
+
+        CGEventFlags mods;
+        CGKeyCode key;
+        // if (parse_chord(chord, &mods, &key) != 0) {
+        //     fprintf(stderr, "config line %d: bad chord '%s', skipping\n", lineno, chord);
+        //     continue;
+        // }
+
+        Binding *b = &g_bindings[g_bindings_size++];
+        b->mods = mods;
+        b->key = key;
+        snprintf(b->bundle, sizeof(b->bundle), "%s", bundle);
+    }
+
+    fclose(file);
+    return (int)g_bindings_size;
+}
+
+static CGEventRef tap_event_callback(CGEventTapProxy tapProxy, CGEventType eventType, CGEventRef event, void *refcon) {
     // If disabled event, re-enable tap.
     if (eventType == kCGEventTapDisabledByTimeout || eventType == kCGEventTapDisabledByUserInput) {
         CGEventTapEnable(g_tap, true);
@@ -65,7 +134,7 @@ int main(void) {
         kCGHeadInsertEventTap,
         kCGEventTapOptionDefault,
         CGEventMaskBit(kCGEventKeyDown),
-        tapEventCallback,
+        tap_event_callback,
         NULL
     );
     if (!g_tap) {
